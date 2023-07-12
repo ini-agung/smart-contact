@@ -2,47 +2,52 @@
 
 #include <ArduinoIoTCloud.h>
 #include <Arduino_ConnectionHandler.h>
+#include <ArduinoIoTCloudTCP.h>
+#include <NTPClient.h>
+#include <WiFiUdp.h>
 #include <WiFi.h>
 #include "time.h"
-#include <stdio.h>
-#include "freertos/FreeRTOS.h"
-
-const char* ntpServer = "pool.ntp.org";
-const long  gmtOffset_sec = 0;
-const int   daylightOffset_sec = 3600;
-
-const char DEVICE_LOGIN_NAME[]  = "9b6664c8-3320-4d3e-a8bd-8014cc94c9e6";
-
+#include <UnixTime.h>
+const char DEVICE_LOGIN_NAME[]  = "a3c51e4e-9074-4499-918b-926751d622f2";
 const char SSID[]               = SECRET_SSID;    // Network SSID (name)
 const char PASS[]               = SECRET_OPTIONAL_PASS;    // Network password (use for WPA, or use as key for WEP)
-const char DEVICE_KEY[]  = SECRET_DEVICE_KEY;    // Secret device password
+const char DEVICE_KEY[]         = SECRET_DEVICE_KEY;    // Secret device password
 
+char SetSecond[5];
+char SetMinute[5];
+char SetHour[5];
+char SetDate[5];
+char SetMonth[5];
+char SetYear[5];
+
+char GetSecond[5];
+char GetMinute[5];
+char GetHour[5];
+char GetDate[5];
+char GetMonth[5];
+char GetYear[5];
+
+void onGetTsChange();
+void onSetTsChange();
+void onLedChange();
 void onRelayChange();
-void onSetTimestampChange();
-void onGetTimestampChange();
-void NTPCode(void *pvParameters);
+void onTimestampChange();
 
+CloudSchedule get_ts;
+CloudSchedule set_ts;
 bool led;
 bool relay;
-char sec[2];
-char minute[2];
-char hour[2];
-char date[2];
-char mon[2];
-char year[4];
-const int pinRelay = 26;
-
-CloudTime get_timestamp;
-CloudTime set_timestamp;
+CloudTime timestamp;
 
 void initProperties() {
-  pinMode(pinRelay, OUTPUT);
+
   ArduinoCloud.setBoardId(DEVICE_LOGIN_NAME);
   ArduinoCloud.setSecretDeviceKey(DEVICE_KEY);
-  ArduinoCloud.addProperty(led, READ, ON_CHANGE, NULL);
+  ArduinoCloud.addProperty(get_ts, READWRITE, ON_CHANGE, onGetTsChange);
+  ArduinoCloud.addProperty(set_ts, READWRITE, ON_CHANGE, onSetTsChange, 1);
+  ArduinoCloud.addProperty(led, READWRITE, ON_CHANGE, onLedChange);
   ArduinoCloud.addProperty(relay, READWRITE, ON_CHANGE, onRelayChange);
-  ArduinoCloud.addProperty(get_timestamp, READ, ON_CHANGE, onGetTimestampChange);
-  ArduinoCloud.addProperty(set_timestamp, READWRITE, ON_CHANGE, onSetTimestampChange);
+  ArduinoCloud.addProperty(timestamp, READWRITE, ON_CHANGE, onTimestampChange);
 }
 
 WiFiConnectionHandler ArduinoIoTPreferredConnection(SSID, PASS);
