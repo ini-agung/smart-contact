@@ -42,6 +42,9 @@ void CheckTimeCode(void *parameter) {
     sh = String(sHour);
     sm = String(sMinute);
     ss = String(sSecond);
+    if(sYear < 2000){
+      sy = "2000";
+    }
     if(sMonth<10){
       smn = "0" + String(sMonth);
     }
@@ -64,22 +67,17 @@ void CheckTimeCode(void *parameter) {
     strcpy(SetHour, sh.c_str());
     strcpy(SetMinute, sm.c_str());
     strcpy(SetSecond, ss.c_str());
-
-//    SetYear = sy.c_str();
-//    SetMonth = smn.c_str();
-//    SetDate = sd.c_str();
-//    SetHour = sh.c_str();
-//    SetMinute = sm.c_str();
-//    SetSecond = ss.c_str();
         
     static int ms = millis();
     if (millis() - ms > 100) {
       printLocalTime();
       String setTS = String(SetYear) + "-" + String(SetMonth) + "-" + String (SetDate) + " " + String(SetHour) + ":" + String(SetMinute) + ":" + String(SetSecond);
       String getTS = String(GetYear) + "-" + String(GetMonth) + "-" + String (GetDate) + " " + String(GetHour) + ":" + String(GetMinute) + ":" + String(GetSecond);
-
-      if (setTS.equals(getTS)) {
+      message = getTS;
+       if (setTS.equals(getTS)) {
         Serial.println("===SAMA===");
+        relay = !relay;
+        delay(1000);
       }
 
       Serial.print("Set TS : "); Serial.println(setTS);

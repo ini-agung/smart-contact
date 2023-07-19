@@ -38,6 +38,7 @@ CloudSchedule set_ts;
 bool led;
 bool relay;
 CloudTime timestamp;
+String message;
 
 void initProperties() {
 
@@ -47,6 +48,7 @@ void initProperties() {
   ArduinoCloud.addProperty(set_ts, READWRITE, ON_CHANGE, onSetTsChange, 1);
   ArduinoCloud.addProperty(led, READWRITE, ON_CHANGE, onLedChange);
   ArduinoCloud.addProperty(relay, READWRITE, ON_CHANGE, onRelayChange);
+  ArduinoCloud.addProperty(message, READ, ON_CHANGE, NULL);
   ArduinoCloud.addProperty(timestamp, READWRITE, ON_CHANGE, onTimestampChange);
 }
 
